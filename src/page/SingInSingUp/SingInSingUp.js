@@ -4,12 +4,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faSearch, faUser,faComment} from "@fortawesome/free-solid-svg-icons"
 import BasicModal from "../../componets/Modal/BasicModal/";
 import SingUpForm from "../../componets/SingUpForm";
+import SingInForm from "../../componets/SingInForm";
 import LogoW from "../../assests/png/logo-white.png";
 import LogoTwi from "../../assests/png/logo.png";
 import "./SingInSingUp.scss";
 
-export default function SingInSingUp() {
-
+export default function SingInSingUp(props) {
+  const { setRefresCheckLogin } = props
   const [showModal,setShowModal]=useState(false);
   const [contentModal,setContentModal] = useState(null)
 
@@ -25,6 +26,7 @@ export default function SingInSingUp() {
             <RigthComponent
               openModal={openModal}
               setShowModal={setShowModal}
+              setRefresCheckLogin={setRefresCheckLogin}
             />
             </Row>
         </Container>
@@ -62,7 +64,7 @@ function LeftComponent() {
   }
 
 function RigthComponent(props){
-  const {openModal,setShowModal}= props
+  const {openModal,setShowModal, setRefresCheckLogin}= props
     return(
         <Col className="signin-signup_right" xs={6}>
           <div>
@@ -84,7 +86,7 @@ function RigthComponent(props){
             </Button>
             <Button 
             variant="outline-primary"
-            onClick={()=>openModal(<h2>Formulario de Login</h2>)}> 
+            onClick={()=>openModal(<SingInForm setRefresCheckLogin={setRefresCheckLogin} />)}> 
               Iniciar sesión
             </Button>
 

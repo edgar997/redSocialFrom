@@ -1,25 +1,34 @@
-import {useState} from "react"
+import {useState, useEffect} from "react"
 import SingInSingUp from "./page/SingInSingUp"
 import { ToastContainer } from "react-toastify"
+import {AuthContext} from './utils/context';
+import { isUserLoguerApi } from "./api/auth";
+import Routing from "./routers/Routing";
 
 export default function App() {
 
-const [user, setUser] = useState({
-  name : "edgar"
-});
+const [user, setUser] = useState(null);
+const [loadUsers,setLoadUsers] = useState(false);
+const [refresCheckLogin,setRefresCheckLogin] = useState(false)
 
+useEffect(()=>{
+  setUser(isUserLoguerApi())
+  setRefresCheckLogin(false)
+  setLoadUsers(true)
+},[refresCheckLogin])
+if(!loadUsers) return null;
 return(
-  <div>
+  <AuthContext.Provider value={user}>
     {
-      user ?(
+      !user ?(
         <div>
-          <SingInSingUp/>
+          <SingInSingUp setRefresCheckLogin={setRefresCheckLogin}/>
 
         </div>
       ):(
-        <h1>no estas logueado</h1>
+        <Routing setRefresCheckLogin={setRefresCheckLogin} />
     )}
-    <ToastContainer 
+    <ToastContainer s
       position="top-right"
       autoClose={5000}
       hideProgressBar={false}
@@ -30,7 +39,7 @@ return(
       draggable
       pauseOnHover
     />
-  </div>
+  </AuthContext.Provider>
 
 )
  

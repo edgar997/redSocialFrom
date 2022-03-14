@@ -5,30 +5,56 @@ import {values,size} from 'lodash';
 import {toast} from "react-toastify"
 
 import {isEmailValid} from "../../utils/validations"
+import { singUpApi } from "../../api/auth";
 
 import "./SingUpForm.scss";
 export default function SingUpForm(props){
 
     const {setShowModal} = props;
     const [formData, setFormData]= useState(initialFormValue())
+    const [singUpLoading, setSingUpLoading] = useState(false)
     const onSubmit = e=>{
-        console.log(formData)
         e.preventDefault()
-        setShowModal(false);
         
         let validCount = 0
-
+        
         values(formData).some(value=>{
             value && validCount++
             return null
         })
         if (validCount !== size(formData) ){
+            setShowModal(true);
             toast.warning("Completa todos los campos del formulario")
         }else{
             if(!isEmailValid(formData.email)){
                 toast.warning("Email invalido")
+            setShowModal(true);
+
+            }else if(formData.password !== formData.repeatPassword){
+                setShowModal(true);
+                toast.warning("Las contraseñas tienen que ser  iguales")
+            }else if(size(formData.password) < 5 ){
+                setShowModal(true);
+                toast.warning("la contraseña tiene que ser mayor a 6")
+
             }else{
-                toast.success("Form OK.")
+                setSingUpLoading(true)
+                singUpApi(formData)
+                .then(response =>{
+                    if(response.code){
+                        toast.warning(response.message);
+                    }else{
+                        toast.success("El registo ha sido correcto");
+                        setShowModal(false);
+                        setFormData(initialFormValue());
+                    }
+                })
+                .catch(()=>{
+                    toast.error("Error del servidor, intentelo mas tarde")
+                })
+                .finally(()=>{
+                    setSingUpLoading(false)
+                });
             }
 
         }
@@ -55,9 +81,9 @@ export default function SingUpForm(props){
                         </Col>
                         <Col>
                             <Form.Control
-                                name ="apellido"
+                                name ="apellidos"
                                 type="text"
-                                placeholder="Apellido"
+                                placeholder="Apellidos"
                                 defaultValue={formData.apellido}
                             />
                         </Col>
@@ -78,7 +104,7 @@ export default function SingUpForm(props){
                             />
                         </Col>
                         <Col>
-                            <Form.Control
+                            <Form.Control 
                                 name ="repeatPassword"
                                 type="password"
                                 placeholder="Repetir contraseña"
@@ -88,7 +114,7 @@ export default function SingUpForm(props){
                     </Row>
                 </Form.Group>
                 <Button variant="primary" type="submit">
-                    Registrate
+                    {!singUpLoading ? "Registrate": <Spinner animation="border"/>}
                 </Button>
             </Form>
         </div>
@@ -98,7 +124,7 @@ export default function SingUpForm(props){
 function initialFormValue(){
     return{
         nombre: "",
-        apellido:"",
+        apellidos:"",
         email:"",
         password:"",
         repeatPassword:""
